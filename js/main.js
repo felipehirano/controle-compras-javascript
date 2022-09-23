@@ -9,10 +9,14 @@ function getTotal(list) {
   for (var indice in list) {
     total += list[indice].value * list[indice].amount;
   }
-  return total;
+  document.getElementById("totalValue").innerHTML = formatValue(total);
 }
 
 function addData() {
+  if (!validation()) {
+    return;
+  }
+
   var desc = document.getElementById("desc").value;
   var amount = document.getElementById("amount").value;
   var value = document.getElementById("value").value;
@@ -33,6 +37,10 @@ function formatValue(value) {
   var str = parseFloat(value).toFixed(2) + "";
   str = "$ " + str.replace(".", ",");
   return str;
+}
+
+function formatAmount(amount) {
+  return parseInt(amount);
 }
 
 function setUpdate(indice) {
@@ -58,6 +66,10 @@ function resetForm() {
 }
 
 function update() {
+  if (!validation()) {
+    return;
+  }
+
   var indice = document.getElementById("idUpdate").value;
 
   var desc = document.getElementById("desc").value;
@@ -85,6 +97,55 @@ function deleteItem(id) {
   }
 }
 
+function validation() {
+  var desc = document.getElementById("desc").value;
+  var amount = document.getElementById("amount").value;
+  var value = document.getElementById("value").value;
+  var errors = "";
+
+  document.getElementById("errors").style.display = "none";
+
+  if (desc === "") {
+    errors += "<p>Fill out description</p>";
+  }
+
+  if (amount === "") {
+    errors += "<p>Fill out quantity</p>";
+  } else if (amount != parseInt(amount)) {
+    errors += "<p>Fill out a valid quantity</p>";
+  }
+
+  if (value === "") {
+    errors += "<p>Fill out value</p>";
+  } else if (value != parseFloat(value)) {
+    errors += "<p>Fill out a valid value</p>";
+  }
+
+  if (errors != "") {
+    document.getElementById("errors").style.display = "block";
+
+    document.getElementById("errors").style.backgroundColor =
+      "rgba(85,85,85,0.3)";
+    document.getElementById("errors").style.color = "white";
+    document.getElementById("errors").style.padding = "10px";
+    document.getElementById("errors").style.margin = "10px";
+    document.getElementById("errors").style.borderRadius = "13px";
+
+    document.getElementById("errors").innerHTML = "<h3>Error:</h3>" + errors;
+    return 0;
+  } else {
+    document.getElementById("errors").style.display = "none";
+    return 1;
+  }
+}
+
+function deleteList() {
+  if (confirm("Delete all data from list ?")) {
+    list = [];
+    setList(list);
+  }
+}
+
 function setList(list) {
   var table =
     "<thead><tr><th>Description</th><th>Amount</th><th>Value</th><th>Action</th></tr></thead><tbody>";
@@ -93,7 +154,7 @@ function setList(list) {
       "<tr><td>" +
       formatDes(list[indice].desc) +
       "</td><td>" +
-      list[indice].amount +
+      formatAmount(list[indice].amount) +
       "</td><td>" +
       formatValue(list[indice].value) +
       "</td><td><button class='btn btn-default' onClick='setUpdate(" +
@@ -106,6 +167,7 @@ function setList(list) {
   table += "</tbody>";
 
   document.getElementById("listTable").innerHTML = table;
+  getTotal(list);
 }
 
 setList(list);
